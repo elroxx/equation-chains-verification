@@ -192,7 +192,7 @@ async function wolframRequestEquality(side1, side2){
         wolframUrlString += "&input=";
         wolframUrlString = wolframUrlString+side1+"%3D%3D%3D"+side2; 
         wolframUrlString += "&includepodid=Result&podstate=Result__Step-by-step+solution&format=plaintext&output=JSON";
-        var proxyUrl = "https://cors.zimjs.com/";
+        var proxyUrl = "https://WHATEVER/CORS/PROXY/YOU/ARE/USING";
         console.log(wolframUrlString);
         var myHeaders = new Headers();
         myHeaders.append("Access-Control-Allow-Origin", "https://api.wolframalpha.com/");
