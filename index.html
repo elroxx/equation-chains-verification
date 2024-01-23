@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1 class="title">V-Equality</h1>
+    
+    <div id="mainDiv">
+        <p>
+Select an equation chain to verify its equality.  
+</p>
+<input type="file" accept="image/png, image/jpeg">
+<img width="600" height="200">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+<form id="form">
+  <button id="run">Verify</button>
+</form>
+<code id="output"></code>
+<p id="mathpixTest">
+        </p>
+
+<script>
+//mathpixTest.innerText = "$$\\sqrt{x(6+7)^{3} \\cdot y}\\neq\\frac{44 x}{112}-1935 x y$$";    
+var run = document.getElementById("run");
+var mathpixAnswer = "test";
+var Element = document.querySelector('input');
+var img = document.querySelector('img');
+var imageasURL = "";
+Element.addEventListener('change', function() {
+imageasURL = URL.createObjectURL(Element.files[0]);
+img.src = imageasURL;
+/*imageasURL = imageasURL.slice(5, imageasURL.length);*/
+console.log(imageasURL);
+    imageasURL = URL.createObjectURL(Element.files[0]);
+    });
+run.addEventListener("click", async function (e) {
+  e.preventDefault();
+  mathpixTest.innerText = "Loading...";
+  //imageasURL = "https://cdn.discordapp.com/attachments/348950754297511936/984613046905364480/IMG_20220609_201959837.jpg";
+  var mathpixToken = await tokenFinder();
+console.log(mathpixToken);
+  mathpixTokenArray = await mathpixToken.split("\"app_token_expires_at\"");
+  var mathpixTokenMaybe = await mathpixTokenArray[0].slice(14, mathpixTokenArray[0].length-2);
+  console.log(mathpixTokenMaybe);
+  var mathpixAnswer = await equationFinder(imageasURL, mathpixTokenMaybe);    
+  console.log(mathpixAnswer);
+  //mathpixTest.innerText = mathpixAnswer;
+  var mathpixAnswerSplitArray = mathpixAnswer.split("\"data\":");
+  var mathpixDataSection = mathpixAnswerSplitArray[1];
+  //var mathMLEquation = mathMLFormatter(mathpixDataSection);
+  //mathpixTest.innerHTML = mathMLEquation;
+  var equationArrayUnformatted = equationSplitter(mathpixAnswerSplitArray[0]);
+  console.log(equationArrayUnformatted);
+  var equationSides = [];
+  for (var i = 0; i<equationArrayUnformatted.length;i++)
+    {
+      equationSides.push(equationFormatter(equationArrayUnformatted[i]));
+    }
+  if(equationSides.length<=0)
+      {
+       console.log("This image is not an equation");   
+       mathpixTest.innerText = "This image is not an equation";  
+      }
+  else{
+      var equalityArray = [];
+      var currentSide = equationSides.shift();
+      while(equationSides.length!=0)
+          {
+              var nextSide = equationSides.shift();
+              var equalVerifResult = await equalVerif(currentSide, nextSide);
+              equalityArray.push(equalVerifResult);
+              currentSide = nextSide;
+          }
+      for (var j = 0; j<equalityArray.length; j++)
+          {
+              if (equalityArray[j])
+                  {
+                      console.log("The equal sign at position "+(j+1)+" is true");
+                  }
+              else
+                  {
+                      console.log("The equal sign at position "+(j+1)+" is false");
+                  }
+              
+          }
+    var equationDisplay = mathJaxFormatter(mathpixAnswerSplitArray[0], equalityArray);
+    mathpixTest.innerText = await equationDisplay;
+    var math = document.getElementById("mathpixTest");
+      console.log(math);
+      //MathJax.Hub.Queue(["Typeset",MathJax.Hub,math]);
+      MathJax.typesetPromise();
+  }
+
+    
+    
+
+  
+});
+    
+async function equationFinder(image_link, mathpixToken){
+
+var myHeaders = new Headers();
+myHeaders.append("app_token", mathpixToken);
+var Element = document.querySelector('input');
+var formdata = new FormData();
+formdata.append("file", Element.files[0]);
+formdata.append("options_json", "{\"formats\": [\"data\",\"text\"], \"data_options\": {\"include_mathml\": true}}");
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: formdata,
+  redirect: 'follow'
+};
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: formdata,
+  redirect: 'follow'
+};
+
+return await fetch("https://api.mathpix.com/v3/text", requestOptions)
+  .then(response => response.text())
+  .then(result => {
+    return result
+  })
+  .catch(error => console.log('error', error));
+                                        }
+function equationSplitter(mathpixResponse){
+    var mathpixResponseText = mathpixResponse.split("\"text\":");
+    var equation = mathpixResponseText[mathpixResponseText.length-1];
+    console.log(equation);
+    var equationFixed = equation.slice(4, equation.length-5);
+    var equationParts = equationFixed.split("=");
+    return equationParts;
+}
+function equationFormatter(equationSide){
+            var formattedES = "";
+            /*do {
+            formattedES = equationSide.replace("\\", "YUCK");
+            }while(formattedES.includes("\\"));*/
+            formattedES = equationSide.replaceAll("\\", "YUCK");
+
+
+            formattedES = formattedES.replaceAll("\"YUCK(", ""); 
+            formattedES = formattedES.replaceAll("YUCK)\"", ""); 
+            formattedES = formattedES.replaceAll("YUCKleft", "");
+            formattedES = formattedES.replaceAll("YUCKright", "");
+
+
+
+            formattedES = formattedES.replaceAll("YUCKYUCKfrac{d}{d x}", "derivative");
+
+            formattedES = formattedES.replaceAll("YUCKYUCKdiv", "/");
+            formattedES = formattedES.replaceAll("YUCKYUCKcdot", "");
+            formattedES = formattedES.replaceAll("YUCKYUCKtimes", "");
+            formattedES = formattedES.replaceAll("YUCKYUCKfrac", ""); 
+            formattedES = formattedES.replaceAll("\"YUCKYUCK(", ""); 
+            formattedES = formattedES.replaceAll("YUCKYUCKlog","log");
+            formattedES = formattedES.replaceAll("}{", "}/{"); 
+            formattedES = formattedES.replaceAll("!", "factorial");
+
+
+            formattedES = formattedES.replaceAll("/", "%2F");
+            formattedES = formattedES.replaceAll("+", "%2B");
+            formattedES = formattedES.replaceAll("{", "(");
+            formattedES = formattedES.replaceAll("}", ")");
+            formattedES = formattedES.replaceAll("^", "%5E");
+
+
+            formattedES = formattedES.replaceAll("YUCK", "");
+            
+            
+            formattedES = formattedES.replaceAll("log[^_]", "log_10+");
+            formattedES = formattedES.trim();
+            formattedES = formattedES.replaceAll(" ", "+");
+
+            console.log(formattedES);
+            return formattedES;
+            }
+async function wolframRequestEquality(side1, side2){
+            
+        var wolframUrlString = "https://api.wolframalpha.com/v2/query?appid=W2T9TG-82L4W2H3L6";
+        wolframUrlString += "&input=";
+        wolframUrlString = wolframUrlString+side1+"%3D%3D%3D"+side2; 
+        wolframUrlString += "&includepodid=Result&podstate=Result__Step-by-step+solution&format=plaintext&output=JSON";
+        var proxyUrl = "https://cors.zimjs.com/";
+        console.log(wolframUrlString);
+        var myHeaders = new Headers();
+        myHeaders.append("Access-Control-Allow-Origin", "https://api.wolframalpha.com/");
+
+        var requestOptionsW = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+        return await fetch(proxyUrl + wolframUrlString, requestOptionsW)
+                .then(response =>  response.text())
+    .catch(error => console.log('error', error));
+
+        
+}
+async function equalVerif(side1, side2){
+    var equality = null;
+    var wolframOutputLine = await wolframRequestEquality(side1, side2);
+    console.log(wolframOutputLine);
+    if (wolframOutputLine.includes("True"))
+            {
+                equality = true;
+            }
+        if (wolframOutputLine.includes("False"))
+            {
+                equality = false;
+            }
+        console.log(equality);
+        return equality;
+}
+function mathMLFormatter(mathpixResponseTrimmed){
+    var mathMLOnly = mathpixResponseTrimmed.split("\"value\":\"");
+    mathMLOnly = mathMLOnly.slice(0, mathMLOnly.length-4);
+    return mathMLOnly;
+    
+}
+function mathJaxFormatter(mathpixResponse, equalityArray){
+    var mathpixResponseText = mathpixResponse.split("\"text\":");
+    var equation = mathpixResponseText[mathpixResponseText.length-1];
+    console.log(equation);
+    var equationFixed = equation.slice(4, equation.length-5);
+    equationFixed = equationFixed.replaceAll("\\\\", "\\");
+    equationFixed = equationFixed.trim();
+    equationFixed = "$$"+equationFixed+"$$";
+    for (var k = 0; k<equalityArray.length;k++)
+        {
+            if(equalityArray[k])
+                {
+                    equationFixed = equationFixed.replace("=", "\\color{green}{YUCKINGTON}\\color{black}");
+                    
+                }
+            else if(equalityArray[k] == false)
+                {
+                    equationFixed = equationFixed.replace("=", " \\color{red}\\neq\\color{black}");
+                    
+                }
+        }
+    equationFixed = equationFixed.replaceAll("YUCKINGTON", "=");
+    //equationFixed = equationFixed.replaceAll(" ", "");
+    
+
+    console.log(equationFixed)
+    return equationFixed;
+}
+async function tokenFinder(){
+    var myHeaders = new Headers();
+myHeaders.append("app_key", "9001ff29c5d6303a3485ee1d7dc2403e3552614faa490e87e2ac981601755d57");
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  redirect: 'follow'
+};
+
+return await fetch("https://api.mathpix.com/v3/app-tokens", requestOptions)
+  .then(response => response.text())
+  .then(result => {
+    return result
+  })
+  .catch(error => console.log('error', error));
+}
+ 
+
+</script>
+    </div>
+    
+    
+</body>
+</html>
