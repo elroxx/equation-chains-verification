@@ -145,26 +145,26 @@ function equationSplitter(mathpixResponse){
 function equationFormatter(equationSide){
             var formattedES = "";
             /*do {
-            formattedES = equationSide.replace("\\", "YUCK");
+            formattedES = equationSide.replace("\\", "BACKSLASHTEMPO");
             }while(formattedES.includes("\\"));*/
-            formattedES = equationSide.replaceAll("\\", "YUCK");
+            formattedES = equationSide.replaceAll("\\", "BACKSLASHTEMPO");
 
 
-            formattedES = formattedES.replaceAll("\"YUCK(", ""); 
-            formattedES = formattedES.replaceAll("YUCK)\"", ""); 
-            formattedES = formattedES.replaceAll("YUCKleft", "");
-            formattedES = formattedES.replaceAll("YUCKright", "");
+            formattedES = formattedES.replaceAll("\"BACKSLASHTEMPO(", ""); 
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPO)\"", ""); 
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOleft", "");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOright", "");
 
 
 
-            formattedES = formattedES.replaceAll("YUCKYUCKfrac{d}{d x}", "derivative");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOfrac{d}{d x}", "derivative");
 
-            formattedES = formattedES.replaceAll("YUCKYUCKdiv", "/");
-            formattedES = formattedES.replaceAll("YUCKYUCKcdot", "");
-            formattedES = formattedES.replaceAll("YUCKYUCKtimes", "");
-            formattedES = formattedES.replaceAll("YUCKYUCKfrac", ""); 
-            formattedES = formattedES.replaceAll("\"YUCKYUCK(", ""); 
-            formattedES = formattedES.replaceAll("YUCKYUCKlog","log");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOdiv", "/");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOcdot", "");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOtimes", "");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOfrac", ""); 
+            formattedES = formattedES.replaceAll("\"BACKSLASHTEMPOBACKSLASHTEMPO(", ""); 
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPOBACKSLASHTEMPOlog","log");
             formattedES = formattedES.replaceAll("}{", "}/{"); 
             formattedES = formattedES.replaceAll("!", "factorial");
 
@@ -176,7 +176,7 @@ function equationFormatter(equationSide){
             formattedES = formattedES.replaceAll("^", "%5E");
 
 
-            formattedES = formattedES.replaceAll("YUCK", "");
+            formattedES = formattedES.replaceAll("BACKSLASHTEMPO", "");
             
             
             formattedES = formattedES.replaceAll("log[^_]", "log_10+");
@@ -241,7 +241,7 @@ function mathJaxFormatter(mathpixResponse, equalityArray){
         {
             if(equalityArray[k])
                 {
-                    equationFixed = equationFixed.replace("=", "\\color{green}{YUCKINGTON}\\color{black}");
+                    equationFixed = equationFixed.replace("=", "\\color{green}{BACKSLASHTEMPOINGTON}\\color{black}");
                     
                 }
             else if(equalityArray[k] == false)
@@ -250,7 +250,7 @@ function mathJaxFormatter(mathpixResponse, equalityArray){
                     
                 }
         }
-    equationFixed = equationFixed.replaceAll("YUCKINGTON", "=");
+    equationFixed = equationFixed.replaceAll("BACKSLASHTEMPOINGTON", "=");
     //equationFixed = equationFixed.replaceAll(" ", "");
     
 
