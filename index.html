@@ -188,7 +188,7 @@ function equationFormatter(equationSide){
             }
 async function wolframRequestEquality(side1, side2){
             
-        var wolframUrlString = "https://api.wolframalpha.com/v2/query?appid=W2T9TG-82L4W2H3L6";
+        var wolframUrlString = "https://api.wolframalpha.com/v2/query?appid=APP_ID";
         wolframUrlString += "&input=";
         wolframUrlString = wolframUrlString+side1+"%3D%3D%3D"+side2; 
         wolframUrlString += "&includepodid=Result&podstate=Result__Step-by-step+solution&format=plaintext&output=JSON";
@@ -259,7 +259,7 @@ function mathJaxFormatter(mathpixResponse, equalityArray){
 }
 async function tokenFinder(){
     var myHeaders = new Headers();
-myHeaders.append("app_key", "9001ff29c5d6303a3485ee1d7dc2403e3552614faa490e87e2ac981601755d57");
+myHeaders.append("app_key", "APP_KEY");
 
 var requestOptions = {
   method: 'POST',
